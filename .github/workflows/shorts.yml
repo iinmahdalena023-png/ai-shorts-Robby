@@ -1,0 +1,34 @@
+name: Buat & Upload YouTube Shorts
+
+on:
+  workflow_dispatch:
+    inputs:
+      privacy:
+        description: "Pilih private (cek dulu) atau public (tayang langsung)"
+        required: true
+        default: "private"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout kode
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install tools
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg fonts-dejavu-core
+          pip install edge-tts google-api-python-client google-auth pillow
+
+      - name: Jalankan AI Shorts
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          YT_PRIVACY: ${{ github.event.inputs.privacy || 'private' }}
+        run: python buat_dan_upload.py
